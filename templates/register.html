@@ -4,30 +4,30 @@
     <div class="row">
         <form class="col s12 m8 offset-m2" method="POST" action="{{ url_for('register') }}">
             <div class="card-panel">
-                <span>
-                    <!-- username -->
-                    <div class="row">
-                        <div class="input-field col s12">
-                            <i class="fas fa-user-plus prefix light-blue-text text-darken-4" aria-hidden="true"></i>
-                            <input id="username" name="username" type="text" class="validate" minlength="5" maxlength="15" pattern="^[a-zA-z0-9]{5,15}$" required>
-                            <label for="username">Username</label>
-                        </div>
+                <!-- username -->
+                <div class="row">
+                    <div class="input-field col s12">
+                        <i class="fas fa-user-plus prefix light-blue-text text-darken-4" aria-hidden="true"></i>
+                        <input id="username" name="username" type="text" class="validate" minlength="5" maxlength="15"
+                            pattern="^[a-zA-z0-9]{5,15}$" required>
+                        <label for="username">Username</label>
                     </div>
-                    <!-- password -->
-                    <div class="row">
-                        <div class="input-field col s12">
-                            <i class="fas fa-user-lock prefix light-blue-text text-darken-4" aria-hidden="true"></i>
-                            <input id="password" name="password" type="password" class="validate" minlength="5" maxlength="15" required>
-                            <label for="password">Password</label>
-                        </div>
+                </div>
+                <!-- password -->
+                <div class="row">
+                    <div class="input-field col s12">
+                        <i class="fas fa-user-lock prefix light-blue-text text-darken-4" aria-hidden="true"></i>
+                        <input id="password" name="password" type="password" class="validate" minlength="5" maxlength="15"
+                            required>
+                        <label for="password">Password</label>
                     </div>
-                    <!-- register -->
-                    <div class="row">
-                        <button type="submit" class="col s12 btn-large light-blue darke-4 text-shadow">
-                            Register <i class="fas fa-sign-in-alt" aria-hidden="true"></i>
-                        </button>
-                    </div>
-                </span>
+                </div>
+                <!-- register -->
+                <div class="row">
+                    <button type="submit" class="col s12 btn-large light-blue darke-4 text-shadow">
+                        Register <i class="fas fa-sign-in-alt" aria-hidden="true"></i>
+                    </button>
+                </div>
             </div>
         </form>
     </div>
