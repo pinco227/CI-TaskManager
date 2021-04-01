@@ -219,6 +219,19 @@ def edit_category(category_id):
     return redirect(url_for("login"))
 
 
+@app.route('/delete_category/<category_id>')
+def delete_category(category_id):
+    if session.get("user") and session["user"].lower() == "admin".lower():
+        mongo.db.categories.remove({"_id": ObjectId(category_id)})
+        flash("Category was successfully deleted")
+        return redirect(url_for("get_categories"))
+    elif session.get("user"):
+        flash("You don't have the user privileges to access this section")
+        return redirect(url_for("get_tasks"))
+
+    return redirect(url_for("login"))
+
+
 if __name__ == "__main__":
     app.run(host=os.environ.get("IP"),
             port=int(os.environ.get("PORT")),
