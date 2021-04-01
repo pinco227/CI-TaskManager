@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 {% block content %}
 
-     <h3 class="light-blue-text text-darken-4 center-align">All Tasks</h3>
+    <h3 class="light-blue-text text-darken-4 center-align">All Tasks</h3>
 
     <ul class="collapsible">
         {% for task in tasks %}
             {% if task.complete %}
                 <li>
-                    <div class="collapsible-header row white-text grey darken-3 text-shadow">
+                    <div class="collapsible-header row white-text blue-grey darken-3 text-shadow">
                         <div class="col s1">
                             <i class="fas fa-caret-down" aria-hidden="true"></i>
                         </div>
