@@ -1,7 +1,7 @@
 import os
 from flask import (
     Flask, flash, render_template,
-    redirect, request, session, url_for)
+    redirect, request, session, url_for, Markup)
 from flask_pymongo import PyMongo
 from bson.objectid import ObjectId
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -103,7 +103,8 @@ def add_task():
             "task_description": request.form.get("task_description"),
             "is_urgent": is_urgent,
             "due_date": request.form.get("due_date"),
-            "created_by": session["user"]
+            "created_by": session["user"],
+            "complete": False
         }
         mongo.db.tasks.insert_one(task)
         flash("Task successfully Added")
@@ -130,7 +131,26 @@ def edit_task(task_id):
 
     task = mongo.db.tasks.find_one({"_id": ObjectId(task_id)})
     categories = mongo.db.categories.find().sort("category_name", 1)
+
+    if task['created_by'] != session["user"]:
+        flash("You can't edit a task that's not created by you!")
+        return redirect(url_for("get_tasks"))
+
     return render_template("edit_task.html", task=task, categories=categories)
+
+
+@app.route("/complete_task/<task_id>")
+def complete_task(task_id):
+    task = mongo.db.tasks.find_one({"_id": ObjectId(task_id)})
+    if task['created_by'] != session["user"]:
+        flash("You can't complete a task that's not created by you!")
+    else:
+        flash(
+            Markup("Task <u>{}</u> was successfully completed".format(task['task_name'])))
+        mongo.db.tasks.update({"_id": ObjectId(task_id)}, {
+                              "$set": {"complete": True}})
+
+    return redirect(url_for("get_tasks"))
 
 
 if __name__ == "__main__":

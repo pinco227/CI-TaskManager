@@ -5,28 +5,54 @@
 
     <ul class="collapsible">
         {% for task in tasks %}
-            <li>
-                <div class="collapsible-header white-text light-blue darken-3 text-shadow">
-                    <div class="col s3">
-                        <i class="fas fa-caret-down" aria-hidden="true"></i>
-                        {% if session.user|lower == task.created_by|lower %}
-                            <a href="" class="btn-small green accent-4">Done</a>
-                            <a href="{{ url_for('edit_task', task_id=task._id) }}" class="btn-small light-blue accent-3">Edit</a>
-                        {% endif %}
+            {% if task.complete %}
+                <li>
+                    <div class="collapsible-header row white-text grey darken-3 text-shadow">
+                        <div class="col s1">
+                            <i class="fas fa-caret-down" aria-hidden="true"></i>
+                        </div>
+                        <div class="col s8">
+                            <strong>{{ task.task_name }}</strong>: {{ task.due_date }}
+                            <i class="fas fa-check green-text tooltipped right" aria-hidden="true" data-position="left" data-tooltip="Completed"></i>
+                        </div>
+                        <div class="col s3 right-align">
+                            {% if session.user|lower == task.created_by|lower %}
+                                <a href="{{ url_for('edit_task', task_id=task._id) }}" class="btn-small light-blue accent-3">Edit</a>
+                            {% endif %}
+                        </div>
                     </div>
-                    <div class="col s9">
-                        <strong>{{ task.task_name }}</strong>: {{ task.due_date }}
-                        {% if task.is_urgent == "on" %}
-                            <i class="fa fa-exclamation-circle light-blue-text text-lighten-2 tooltipped" aria-hidden="true" data-position="right" data-tooltip="URGENT"></i>
-                        {% endif %}
+                    <div class="collapsible-body">
+                        <strong>{{ task.category_name }}</strong>
+                        <p>{{ task.task_description }}</p>
+                        <p><em>by: {{ task.created_by }}</em></p>
                     </div>
-                </div>
-                <div class="collapsible-body">
-                    <strong>{{ task.category_name }}</strong>
-                    <p>{{ task.task_description }}</p>
-                    <p><em>by: {{ task.created_by }}</em></p>
-                </div>
-            </li>
+                </li>
+            {% else %}
+                <li>
+                    <div class="collapsible-header row white-text light-blue darken-3 text-shadow">
+                        <div class="col s1">
+                            <i class="fas fa-caret-down" aria-hidden="true"></i>
+                        </div>
+                        <div class="col s8">
+                            <strong>{{ task.task_name }}</strong>: {{ task.due_date }}
+                            {% if task.is_urgent == "on" %}
+                                <i class="fas fa-exclamation-circle yellow-text tooltipped right" aria-hidden="true" data-position="left" data-tooltip="URGENT"></i>
+                            {% endif %}
+                        </div>
+                        <div class="col s3 right-align">
+                            {% if session.user|lower == task.created_by|lower %}
+                                <a href="{{ url_for('complete_task', task_id=task._id) }}" class="btn-small green accent-4">Done</a>
+                                <a href="{{ url_for('edit_task', task_id=task._id) }}" class="btn-small light-blue accent-3">Edit</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="collapsible-body">
+                        <strong>{{ task.category_name }}</strong>
+                        <p>{{ task.task_description }}</p>
+                        <p><em>by: {{ task.created_by }}</em></p>
+                    </div>
+                </li>
+            {% endif %}
         {% endfor %}
     </ul>
 {% endblock content %}
