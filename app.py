@@ -87,14 +87,19 @@ def profile(username):
 
 @app.route("/logout")
 def logout():
-    # remove user from session cookies
+    if session.get("user"):
+        # remove user from session cookies
+        session.pop("user")
+
     flash("You have been logged out")
-    session.pop("user")
     return redirect(url_for("login"))
 
 
 @app.route("/add_task", methods=["GET", "POST"])
 def add_task():
+    if not session.get("user"):
+        return redirect(url_for("login"))
+
     if request.method == "POST":
         is_urgent = "on" if request.form.get("is_urgent") else "off"
         task = {
@@ -116,6 +121,9 @@ def add_task():
 
 @app.route("/edit_task/<task_id>", methods=["GET", "POST"])
 def edit_task(task_id):
+    if not session.get("user"):
+        return redirect(url_for("login"))
+
     if request.method == "POST":
         is_urgent = "on" if request.form.get("is_urgent") else "off"
         submit = {
@@ -126,7 +134,8 @@ def edit_task(task_id):
             "due_date": request.form.get("due_date"),
             "created_by": session["user"]
         }
-        mongo.db.tasks.update({"_id": ObjectId(task_id)}, submit)
+        mongo.db.tasks.update({"_id": ObjectId(task_id)}, {
+                              "$set": submit})
         flash("Task successfully Updated")
 
     task = mongo.db.tasks.find_one({"_id": ObjectId(task_id)})
@@ -141,6 +150,9 @@ def edit_task(task_id):
 
 @app.route("/complete_task/<task_id>")
 def complete_task(task_id):
+    if not session.get("user"):
+        return redirect(url_for("login"))
+
     task = mongo.db.tasks.find_one({"_id": ObjectId(task_id)})
     if task['created_by'] != session["user"]:
         flash("You can't complete a task that's not created by you!")
@@ -153,24 +165,58 @@ def complete_task(task_id):
     return redirect(url_for("get_tasks"))
 
 
-@app.route("/get_categries")
+@app.route("/get_categories")
 def get_categories():
-    categories = list(mongo.db.categories.find().sort("category_name", 1))
-    return render_template("categories.html", categories=categories)
+    if session.get("user") and session["user"].lower() == "admin".lower():
+        categories = list(mongo.db.categories.find().sort("category_name", 1))
+        return render_template("categories.html", categories=categories)
+    elif session.get("user"):
+        flash("You don't have the user privileges to access this section")
+        return redirect(url_for("get_tasks"))
+
+    return redirect(url_for("login"))
 
 
 @app.route('/add_category', methods=["GET", "POST"])
 def add_category():
-    if request.method == "POST":
-        category = {
-            "category_name": request.form.get("category_name"),
-        }
-        mongo.db.categories.insert_one(category)
-        flash(Markup(
-            "Category <strong>{}</strong> successfully Added".format(category['category_name'])))
-        return redirect(url_for("get_categories"))
+    if session.get("user") and session["user"].lower() == "admin".lower():
+        if request.method == "POST":
+            category = {
+                "category_name": request.form.get("category_name"),
+            }
+            mongo.db.categories.insert_one(category)
+            flash(Markup(
+                "Category <strong>{}</strong> successfully Added".format(category['category_name'])))
+            return redirect(url_for("get_categories"))
 
-    return render_template("add_category.html")
+        return render_template("add_category.html")
+    elif session.get("user"):
+        flash("You don't have the user privileges to access this section")
+        return redirect(url_for("get_tasks"))
+
+    return redirect(url_for("login"))
+
+
+@app.route('/edit_category/<category_id>', methods=["GET", "POST"])
+def edit_category(category_id):
+    if session.get("user") and session["user"].lower() == "admin".lower():
+        category = mongo.db.categories.find_one({"_id": ObjectId(category_id)})
+        if request.method == "POST":
+            submit = {
+                "category_name": request.form.get("category_name"),
+            }
+            mongo.db.categories.update(
+                {"_id": ObjectId(category_id)}, {"$set": submit})
+            flash(Markup(
+                "Category name successfully changed:<br> <strike>{0}</strike> > <strong>{1}</strong>".format(category['category_name'], submit["category_name"])))
+            return redirect(url_for("get_categories"))
+
+        return render_template("edit_category.html", category=category)
+    elif session.get("user"):
+        flash("You don't have the user privileges to access this section")
+        return redirect(url_for("get_tasks"))
+
+    return redirect(url_for("login"))
 
 
 if __name__ == "__main__":
